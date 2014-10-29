@@ -187,18 +187,27 @@ def benchmark(clf):
     print('_' * 80)
     print("Training: ")
     print(clf)
-    t0 = time()
-    clf.fit(X_train, y_train)
-    train_time = time() - t0
-    print("train time: %0.3fs" % train_time)
 
-    t0 = time()
+    clf.fit(X_train, y_train)
     pred = clf.predict(X_test)
-    test_time = time() - t0
-    print("test time:  %0.3fs" % test_time)
 
     score = metrics.f1_score(y_test, pred)
+    confusion = metrics.confusion_matrix(y_test,pred)
+
+
+
+
+    file_object = open('x', 'w')
+    file_object.write(np.array_str(y_test,1000))
+    file_object.close( )
+
+    file_object = open('y', 'w')
+    file_object.write(np.array_str(pred,1000))
+    file_object.close( )
+    exit(0)
+
     print("f1-score:   %0.3f" % score)
+    print("confusion:  %s " % confusion)
 
     if hasattr(clf, 'coef_'):
         print("dimensionality: %d" % clf.coef_.shape[1])
@@ -223,7 +232,7 @@ def benchmark(clf):
 
     print()
     clf_descr = str(clf).split('(')[0]
-    return clf_descr, score, train_time, test_time
+    return clf_descr, score, confusion
 
 
 results = []
@@ -250,7 +259,9 @@ test_time = time() - t0
 print("test time:  %0.3fs" % test_time)
 
 score = metrics.f1_score(y_test, pred)
+confusion = metrics.confusion_matrix(y_test,pred)
 print("f1-score:   %0.3f" % score)
+print("confusion:  %s " % confusion)
 
 if hasattr(clf, 'coef_'):
     print("dimensionality: %d" % clf.coef_.shape[1])
@@ -275,7 +286,7 @@ if opts.print_cm:
 
 print()
 clf_descr = str(clf).split('(')[0]
-test = clf_descr, score, train_time, test_time
+test = clf_descr, score, confusion
 results.append(test) ;
 ####################
 
@@ -284,11 +295,9 @@ results.append(test) ;
 
 indices = np.arange(len(results))
 
-results = [[x[i] for x in results] for i in range(4)]
+results = [[x[i] for x in results] for i in range(3)]
 
-clf_names, score, training_time, test_time = results
-training_time = np.array(training_time) / np.max(training_time)
-test_time = np.array(test_time) / np.max(test_time)
+clf_names, score, confusion = results
 
 plt.figure(figsize=(12, 8))
 plt.title("Score")

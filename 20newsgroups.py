@@ -41,7 +41,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils.extmath import density
 
 from sklearn import metrics
-
+from sklearn.metrics import confusion_matrix
 
 # Display progress logs on stdout
 logging.basicConfig(level=logging.INFO,
@@ -93,10 +93,11 @@ if opts.all_categories:
     categories = None
 else:
     categories = [
-        'alt.atheism',
-        'talk.religion.misc',
-        'comp.graphics',
-        'sci.space',
+ 'alt.atheism',
+ 'comp.graphics',
+ 'comp.os.ms-windows.misc',
+ 'comp.sys.ibm.pc.hardware',
+ 'comp.sys.mac.hardware',
     ]
 
 if opts.filtered:
@@ -192,22 +193,8 @@ def benchmark(clf):
     pred = clf.predict(X_test)
 
     score = metrics.f1_score(y_test, pred)
-    confusion = metrics.confusion_matrix(y_test,pred)
-
-
-
-
-    file_object = open('x', 'w')
-    file_object.write(np.array_str(y_test,1000))
-    file_object.close( )
-
-    file_object = open('y', 'w')
-    file_object.write(np.array_str(pred,1000))
-    file_object.close( )
-    exit(0)
 
     print("f1-score:   %0.3f" % score)
-    print("confusion:  %s " % confusion)
 
     if hasattr(clf, 'coef_'):
         print("dimensionality: %d" % clf.coef_.shape[1])
@@ -228,11 +215,18 @@ def benchmark(clf):
 
     if opts.print_cm:
         print("confusion matrix:")
-        print(metrics.confusion_matrix(y_test, pred))
+        # print(metrics.confusion_matrix(y_test, pred))
+        cm = confusion_matrix(y_test, pred)
+        plt.matshow(cm)
+        plt.title('Confusion matrix')
+        plt.colorbar()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+        plt.show()
 
     print()
     clf_descr = str(clf).split('(')[0]
-    return clf_descr, score, confusion
+    return clf_descr, score
 
 
 results = []
@@ -250,18 +244,15 @@ for clf, name in (
 clf = DecisionTreeClassifier()
 clf = clf.fit(X_train.toarray(), y_train)
 
-train_time = time() - t0
-print("train time: %0.3fs" % train_time)
+print('_' * 80)
+print("Training: ")
+print(clf)
 
 t0 = time()
 pred = clf.predict(X_test.toarray())
-test_time = time() - t0
-print("test time:  %0.3fs" % test_time)
 
 score = metrics.f1_score(y_test, pred)
-confusion = metrics.confusion_matrix(y_test,pred)
 print("f1-score:   %0.3f" % score)
-print("confusion:  %s " % confusion)
 
 if hasattr(clf, 'coef_'):
     print("dimensionality: %d" % clf.coef_.shape[1])
@@ -282,22 +273,29 @@ if opts.print_report:
 
 if opts.print_cm:
     print("confusion matrix:")
-    print(metrics.confusion_matrix(y_test, pred))
+    # print(metrics.confusion_matrix(y_test, pred))
+    cm = confusion_matrix(y_test, pred)
+    plt.matshow(cm)
+    plt.title('Confusion matrix')
+    plt.colorbar()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.show()
 
 print()
 clf_descr = str(clf).split('(')[0]
-test = clf_descr, score, confusion
+test = clf_descr, score
 results.append(test) ;
-####################
+###################
 
 
 # make some plots
 
 indices = np.arange(len(results))
 
-results = [[x[i] for x in results] for i in range(3)]
+results = [[x[i] for x in results] for i in range(2)]
 
-clf_names, score, confusion = results
+clf_names, score = results
 
 plt.figure(figsize=(12, 8))
 plt.title("Score")
@@ -312,3 +310,5 @@ for i, c in zip(indices, clf_names):
     plt.text(-.3, i, c)
 
 plt.show()
+
+

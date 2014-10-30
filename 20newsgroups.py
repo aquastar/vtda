@@ -14,6 +14,7 @@ automatically downloaded, then cached.
 The bar plot indicates the accuracy, training time (normalized) and test time
 (normalized) of each classifier.
 
+http://scikit-learn.org/stable/auto_examples/document_classification_20newsgroups.html
 """
 
 # Author: Peter Prettenhofer <peter.prettenhofer@gmail.com>
